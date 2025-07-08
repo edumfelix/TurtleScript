@@ -1,0 +1,13 @@
+inicio
+var inteiro passo;
+passo = 20;
+avancar passo;
+girar_direita 90;
+passo = 40;
+avancar passo;
+girar_direita 90;
+passo = 60;
+avancar passo;
+girar_direita 90;
+avancar passo;
+fim

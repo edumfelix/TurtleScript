@@ -1,0 +1,12 @@
+inicio
+avancar 100;
+girar_direita 90;
+avancar 100;
+girar_direita 90;
+velocidade(1);
+avancar 100;
+girar_direita 90;
+avancar 100;
+girar_direita 90;
+circulo(10);
+fim
