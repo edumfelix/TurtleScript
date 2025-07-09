@@ -1,46 +1,10 @@
 inicio
-
-// Declaracao de variaveis
-var inteiro x, y, passo;
-var logico condicao;
-var real fator;
-var texto nome;
-
-x = 0;
-y = 0;
-passo = 10;
-condicao = verdadeiro;
-fator = 1.5;
-nome = "Teste";
-
-// Estrutura condicional
-se condicao entao
-    avancar passo;
-    girar_direita 90;
-senao
-    recuar passo;
-    girar_esquerda 90;
-fim_se
-
-// Estrutura de repeticao com contador
-repita 4 vezes
-    avancar passo;
-    girar_direita 90;
-fim_repita
-
-// Estrutura de repeticao com condicao
-enquanto x < 50 faca
-    avancar passo;
-    x = x + passo;
-fim_enquanto
-
-// Comandos graficos
-levantar_caneta;
-ir_para (100, 100);
-abaixar_caneta;
-definir_cor "blue";
-definir_espessura 2;
-cor_de_fundo "yellow";
-limpar_tela;
-
+avancar 100;
+girar_direita 90;
+avancar 100;
+girar_direita 90;
+avancar 100;
+girar_direita 90;
+avancar 100;
+girar_direita 90;
 fim

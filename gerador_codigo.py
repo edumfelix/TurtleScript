@@ -61,7 +61,6 @@ class GeradorCodigo:
         for var in variaveis:
             self.variaveis_declaradas[var] = tipo
             
-            # Inicializa com valor padrão baseado no tipo
             if tipo == 'inteiro':
                 self.adicionar_linha(f"{var} = 0")
             elif tipo == 'real':
@@ -75,7 +74,6 @@ class GeradorCodigo:
         ident = comando.valor['ident']
         valor = self.processar_expressao(comando.valor['valor'])
         
-        # Verifica se precisa de conversão de tipo
         if ident in self.variaveis_declaradas:
             tipo = self.variaveis_declaradas[ident]
             if tipo == 'logico':
@@ -141,7 +139,6 @@ class GeradorCodigo:
         condicao = self.processar_expressao(comando.valor['condicao'])
         self.adicionar_linha(f"if {condicao}:")
         
-        # Processa blocos verdadeiro e falso
         bloco_verdadeiro = None
         bloco_falso = None
         
@@ -151,7 +148,6 @@ class GeradorCodigo:
             elif filho.tipo == 'BlocoFalso':
                 bloco_falso = filho
         
-        # Bloco verdadeiro
         if bloco_verdadeiro:
             self.indent_level += 1
             if bloco_verdadeiro.filhos:
@@ -164,7 +160,6 @@ class GeradorCodigo:
             self.adicionar_linha("pass")
             self.indent_level -= 1
         
-        # Bloco falso (else)
         if bloco_falso:
             self.adicionar_linha("else:")
             self.indent_level += 1
@@ -176,7 +171,7 @@ class GeradorCodigo:
     
     def processar_repeticao(self, comando):
         vezes = self.processar_expressao(comando.valor['vezes'])
-        contador = f"_i_{id(comando)}"  # Contador único para evitar conflitos
+        contador = f"_i_{id(comando)}"
         
         self.adicionar_linha(f"for {contador} in range(int({vezes})):")
         
@@ -200,20 +195,18 @@ class GeradorCodigo:
     
     def processar_expressao(self, expr):
         if isinstance(expr, str):
-            # Literal ou identificador
             if expr.startswith('"') and expr.endswith('"'):
-                return expr  # String literal
+                return expr  
             elif expr.startswith("'") and expr.endswith("'"):
-                return f'"{expr[1:-1]}"'  # Converte aspas simples para duplas
+                return f'"{expr[1:-1]}"'  
             elif expr.lower() in ['verdadeiro', 'falso']:
                 return 'True' if expr.lower() == 'verdadeiro' else 'False'
             elif expr.replace('.', '').replace('-', '').isdigit():
-                return expr  # Número literal
+                return expr  
             else:
-                return expr  # Identificador
+                return expr  
         
         elif isinstance(expr, dict):
-            # Nó da AST
             if expr.get('tipo') == 'ExpressaoAritmetica':
                 return self.processar_expressao_aritmetica(expr)
             elif expr.get('tipo') == 'ExpressaoLogica':
@@ -222,7 +215,6 @@ class GeradorCodigo:
                 return expr.get('nome', '')
         
         elif hasattr(expr, 'tipo'):
-            # Objeto NoAST
             if expr.tipo == 'ExpressaoAritmetica':
                 return self.processar_expressao_aritmetica(expr.valor)
             elif expr.tipo == 'ExpressaoLogica':
@@ -236,7 +228,6 @@ class GeradorCodigo:
             esq = self.processar_expressao(expr_info['esquerda'])
             dir = self.processar_expressao(expr_info['direita'])
             
-            # Conversão de operadores se necessário
             if op == '%':
                 return f"({esq} % {dir})"
             else:
@@ -248,17 +239,14 @@ class GeradorCodigo:
         if isinstance(expr_info, dict) and 'operador' in expr_info:
             op = expr_info['operador']
             
-            # Operadores unários
             if op == '!' or op == 'nao':
                 operando = self.processar_expressao(expr_info.get('operando', expr_info.get('valor')))
                 return f"(not {operando})"
             
-            # Operadores binários
             else:
                 esq = self.processar_expressao(expr_info['esquerda'])
                 dir = self.processar_expressao(expr_info['direita'])
                 
-                # Conversão de operadores
                 if op == '&&' or op == 'e':
                     return f"({esq} and {dir})"
                 elif op == '||' or op == 'ou':
@@ -286,53 +274,44 @@ def main():
     
     nome_entrada = sys.argv[1]
     
-    # Determina o nome do arquivo de saída
     if len(sys.argv) >= 3:
         nome_saida = sys.argv[2]
     else:
         base_name = os.path.splitext(os.path.basename(nome_entrada))[0]
         nome_saida = f"saida_{base_name}.py"
     
-    # Verifica se o arquivo de entrada existe
     if not os.path.exists(nome_entrada):
         print(f"Erro: Arquivo '{nome_entrada}' não encontrado!")
         sys.exit(1)
     
     try:
-        # Importa os módulos necessários
         from analisador_lexico import AnalisadorLexico
         from analisador_sintatico import AnalisadorSintatico
         from analisador_semantico import AnalisadorSemantico
         
-        # Lê o código fonte
         with open(nome_entrada, "r", encoding="utf-8") as f:
             codigo = f.read()
         
         print(f"Analisando arquivo: {nome_entrada}")
         
-        # Análise léxica
         print("Realizando análise léxica...")
         lexer = AnalisadorLexico(codigo)
         tokens = lexer.analisar()
         print(f"{len(tokens)} tokens encontrados")
         
-        # Análise sintática
         print("Realizando análise sintática...")
         parser = AnalisadorSintatico(tokens)
         ast = parser.programa()
         print("Análise sintática concluída")
         
-        # Análise semântica
         print("Realizando análise semântica...")
         semantic_analyzer = AnalisadorSemantico()
         semantic_analyzer.analisar(ast)
         print("Análise semântica concluída")
         
-        # Geração de código
         print("Gerando código Python...")
         codigo_python = gerar_codigo(ast)
         
-        # Salva o arquivo de saída
         with open(f"saidas/{nome_saida}", "w", encoding="utf-8") as f:
             f.write(codigo_python)
         
